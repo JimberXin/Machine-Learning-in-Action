@@ -52,13 +52,13 @@ def file_to_matrix(file_name):
     f = open(file_name)
     data_set = []
     label = []
-    # not using readlines(), read the file a line each time
+    # not using readlines(), but read the file a line each time, in case it's a big file
     for each_line in f:
         line = each_line.strip()
         line = line.split('\t')
-        data_set.append(line[0:len(line)-1])
-        label.append(int(line[-1]))
-    return array(data_set), label
+        data_set.append([float(x) for x in line[0:len(line)-1]])  # convert string to num
+        label.append(int(line[-1]))  # if not convert, it's a list of 1 * n
+    return array(data_set), mat(label).T
 
 
 def normalize(data_set):
@@ -66,9 +66,9 @@ def normalize(data_set):
     min_val = data_set.min(0)  # find the min of the col (1 for the row)
     max_val = data_set.max(0)
     ranges = max_val - min_val
-    norm_data_set = zeros(shape(data_set))
+    # norm_data_set = zeros(shape(data_set))
     row = data_set.shape[0]  # number of rows
-    diff = data_set - tile(min_val, (row, 1))
+    norm_data_set = data_set - tile(min_val, (row, 1))
     norm_set = norm_data_set/tile(ranges, (row, 1))
     return norm_set, ranges, min_val
 
