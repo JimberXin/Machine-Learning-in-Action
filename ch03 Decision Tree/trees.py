@@ -1,11 +1,7 @@
 # =============================================================================
 # Author: Junbo Xin
 # Date: 2015/01/16
-# Description:  decision tree
-# Input: @new_input:   test example, a vector of size 1 * d
-#        @data_set:  training examples, an array of size M * d
-#        @labels: labels of data_set, a vector of size M * 1
-#        @k:  numbers of neighbours to choose the class
+# Description:  Decision Tree
 
 # =============================================================================
 
