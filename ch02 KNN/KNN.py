@@ -10,6 +10,8 @@
 # ====================================================================
 from numpy import *
 import operator
+from os import listdir
+from os import linesep
 
 
 def create_data_set():
@@ -18,6 +20,10 @@ def create_data_set():
     return group, labels
 
 
+# main classifier, args:
+#     @training data: data_set, labels
+#     @test data: new_input
+#     @k:  nearest k neighbours
 def knn_classify(new_input, data_set, labels, k):
     data_size = data_set.shape[0]   # shape[0] is the row of the data set
 
@@ -71,5 +77,64 @@ def normalize(data_set):
     norm_data_set = data_set - tile(min_val, (row, 1))
     norm_set = norm_data_set/tile(ranges, (row, 1))
     return norm_set, ranges, min_val
+
+
+# transfer the '0-1' txt image into a vector: 1*1024  and return it
+def img_to_vector(file_name):
+    fr = open(file_name)
+    rows = 32
+    cols = 32
+    vec = zeros((1, 1024))
+    # vec = [int(word) for line in fr for word in line.strip().split('\t')]
+    # below is not pythonic at all!!!!
+    for row in range(rows):
+        line = fr.readline()
+        for col in range(cols):
+            vec[0, cols*row + col] = int(line[col])
+    return vec
+
+
+def hand_writings_test():
+    """
+    @Traing Input:  1934 txt file, named like: 3_114.txt
+    @Test Input: 946 txt file
+    :return:
+    """
+    real_labels = []
+    # list all the file in the directory, save the file name in str format
+    training_list = listdir('digits/trainingDigits')
+    training_num = len(training_list)
+    training_mat = zeros((training_num, 1024))  # training input for the classifier
+    fw = open('hand_writings_ouput.txt', 'w')  # save the output result in the disk
+    for row in range(training_num):
+        file_name = training_list[row]   # get the file name ,like '2_110.txt'
+        file_name_str = file_name.split('.')[0]   # get the file name without 'txt'
+        real_digit = int(file_name_str.split('_')[0])  # get the real number
+        real_labels.append(real_digit)
+        training_mat[row, :] = img_to_vector('digits/trainingDigits/%s' % file_name)
+
+    test_list = listdir('digits/testDigits')
+    error_count = 0
+    test_num = len(test_list)
+    for row in range(test_num):
+        file_name = test_list[row]  # get the test file name
+        file_name_str = file_name.split('.')[0]
+        real_digit = int(file_name_str.split('_')[0])
+        predict_vector = img_to_vector('digits/trainingDigits/%s' % file_name)
+        predict_num = knn_classify(predict_vector, training_mat, real_labels, 3)
+        # print 'Classifier predicts: %d, real digit is: %d ' % (predict_num, real_digit)
+        output_str = 'Classifier predicts: %d, real digit is: %d' % (predict_num, real_digit)
+        fw.write('%s%s' % (output_str, linesep))  # save the result with the end of th line: linesep
+        if predict_num != real_digit:
+            error_count += 1
+
+    fw.close()
+    print 'Total wrong predict counts is: %d of %d' % (error_count, test_num)
+    print 'Total predict error rate is: %f ' % (error_count*1.0/float(test_num))
+
+
+
+
+
 
 
