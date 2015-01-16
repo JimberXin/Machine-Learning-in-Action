@@ -55,4 +55,7 @@ def date_class_test():
 
 
 if __name__ == '__main__':
-    date_class_test()
+    # date_class_test()
+    KNN.hand_writings_test()
+
+
