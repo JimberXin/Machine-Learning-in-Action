@@ -108,3 +108,30 @@ def create_tree(data_set, feature_labels):
             split_data_set(data_set, best_feature, value), copy_labels)
 
     return ret_tree
+
+
+def classify(input_tree, feature_labels, test_vec):
+    fisrt_str = input_tree.keys()[0]
+    second_str = input_tree[fisrt_str]
+    feature_index = feature_labels.index(fisrt_str)   # turn to vector
+    for key in second_str.keys():
+        if test_vec[feature_index] == key:
+            if type(second_str[key]).__name__ == 'dict':
+                class_label = classify(second_str[key], feature_labels, test_vec)
+            else:
+                class_label = second_str[key]
+    return class_label
+
+
+def store_tree(input_tree, file_name):
+    import pickle
+    fw = open(file_name, 'w')
+    pickle.dump(input_tree, fw)
+    fw.close()
+
+
+def load_tree(file_name):
+    import pickle
+    fr = open(file_name, 'r')
+    return pickle.load(fr)
+
