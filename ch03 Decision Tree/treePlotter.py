@@ -69,7 +69,7 @@ def retrive_tree(i):
 def plot_mid_text(center_pt, parent_pt, text_str):
     x_axis = (parent_pt[0] - center_pt[0])/2.0 + center_pt[0]
     y_axis = (parent_pt[1] - center_pt[1])/2.0 + center_pt[1]
-    create_plot.axl.text(x_axis, y_axis, text_str)
+    create_plot.axl.text(x_axis, y_axis, text_str, va="center", ha="center", rotation=30)
 
 
 def plot_tree(decision_tree, parent_pt, node_text):
@@ -89,7 +89,7 @@ def plot_tree(decision_tree, parent_pt, node_text):
 
     # step 5: coninue plotting the tree
     second_str = decision_tree[first_str]
-    plot_tree.yOff = plot_tree.yOff - 1.0/plot_tree.totalD   # decrease
+    plot_tree.yOff = plot_tree.yOff - 1.0/plot_tree.totalD   # decrease, go down
     for key in second_str.keys():
         if type(second_str[key]).__name__ == 'dict':
             plot_tree(second_str[key], center_pt, str(key))
@@ -98,17 +98,18 @@ def plot_tree(decision_tree, parent_pt, node_text):
             # now xOff and yOff is current leaf node's parent
             plot_node(second_str[key], (plot_tree.xOff, plot_tree.yOff), center_pt, leaf_node)
             plot_mid_text((plot_tree.xOff, plot_tree.yOff), center_pt, str(key))
-    plot_tree.yOff = plot_tree.yOff + 1.0/plot_tree.totalD
+    plot_tree.yOff = plot_tree.yOff + 1.0/plot_tree.totalD   # don't forget to go  up
 
 
 # main function to create the tree
 def create_plot(in_tree):
-    fig = plt.figure(1, facecolor='white')
+    fig = plt.figure(1, facecolor='gray')
     fig.clf()
     axprops = dict(xticks=[], yticks=[])
     create_plot.axl = plt.subplot(111, frameon=False, **axprops)  # need to know further
     plot_tree.totalW = float(get_num_of_leafs(in_tree))
     plot_tree.totalD = float(get_tree_depth(in_tree))
+    
     # trace the node that has been plot: xOff, yOff
     plot_tree.xOff = -0.5/plot_tree.totalW
     plot_tree.yOff = 1.0
