@@ -109,7 +109,7 @@ def create_plot(in_tree):
     create_plot.axl = plt.subplot(111, frameon=False, **axprops)  # need to know further
     plot_tree.totalW = float(get_num_of_leafs(in_tree))
     plot_tree.totalD = float(get_tree_depth(in_tree))
-    
+
     # trace the node that has been plot: xOff, yOff
     plot_tree.xOff = -0.5/plot_tree.totalW
     plot_tree.yOff = 1.0
