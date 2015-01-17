@@ -6,6 +6,18 @@
 # =============================================================================
 
 from math import log
+import operator
+
+
+# Simple function to create a data set
+def create_data_set():
+    data_set = [[1, 1, 'yes'],
+                [1, 1, 'yes'],
+                [1, 0, 'no'],
+                [0, 1, 'no'],
+                [0, 1, 'no']]
+    feature_labels = ['no surfacing', 'flippers']   # correspond to 1st and 2nd column
+    return data_set, feature_labels
 
 
 # giving the data_set(last col is labels), calculate the total Shannon entropy
@@ -24,16 +36,6 @@ def calc_shannon_entropy(data_set):
     return entropy
 
 
-def create_data_set():
-    data_set = [[1, 1, 'yes'],
-                [1, 1, 'yes'],
-                [1, 0, 'no'],
-                [0, 1, 'no'],
-                [0, 1, 'no']]
-    labels = ['no surfacing', 'flippers']
-    return data_set, labels
-
-
 # return a new data_set without having the current feature
 def split_data_set(data_set, feature, value):
     ret_data_set = []
@@ -50,7 +52,7 @@ def split_data_set(data_set, feature, value):
 # data_set's last col are labels
 def choose_features(data_set):
     num_of_features = len(data_set[0]) - 1    # feature numbers
-    base_entropy = calc_shannon_entropy(data_set)
+    base_entropy = calc_shannon_entropy(data_set)   # label entropy
     best_gain = 0.0
     best_feature = -1
     for i in range(num_of_features):
@@ -67,3 +69,42 @@ def choose_features(data_set):
             best_feature = i
     return best_feature
 
+
+# if feature cannot split the label, then choose the label that is voted most
+def majority_count(label_list):
+    label_count = {}
+    for line in label_list:
+        if line not in label_count:
+            label_count[line] = 0
+        label_count[line] += 1
+    sorted_label = sorted(label_count.iteritems(), key=operator.itemgetter(1), reverse=True)
+    return sorted_label[0][0]
+
+
+#
+def create_tree(data_set, feature_labels):
+    # step 1:  get the label list
+    label_list = [line[-1] for line in data_set]
+    # stop condition 1: If all labels are the same, just return it
+    if label_list.count(label_list[0]) == len(label_list):
+        return label_list[0]
+    # stop condition 2: If there are no more features to split the labels
+    #                   select the label that is voted most
+    if len(data_set) == 1:
+        return majority_count(label_list)
+
+    # step 2: From all the features, select the one that has most info-gain
+    best_feature = choose_features(data_set)
+    best_feature_label = feature_labels[best_feature]
+
+    # final result: save in ret_tree
+    ret_tree = {best_feature_label: {}}
+    del(feature_labels[best_feature])
+    feature_values = [line[best_feature] for line in data_set]
+    unique_val = set(feature_values)
+    for value in unique_val:
+        copy_labels = feature_labels[:]
+        ret_tree[best_feature_label][value] = create_tree(
+            split_data_set(data_set, best_feature, value), copy_labels)
+
+    return ret_tree
