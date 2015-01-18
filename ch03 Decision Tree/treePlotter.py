@@ -44,6 +44,7 @@ def get_num_of_leafs(tree):
             num_of_leafs += 1   # otherwise it's a leaf node, add the num
     return num_of_leafs
 
+
 # giving the Decision Tree: tree, return it's maximum depth from root to leaf
 def get_tree_depth(tree):
     max_depth = 0
