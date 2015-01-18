@@ -2,18 +2,48 @@
     @Description: Test file of bayes
 '''
 
+from numpy import array
 import bayes
 
 
 def test_load():
     word_list, labels = bayes.load_data_set()
     dictionary = bayes.create_vocab_list(word_list)
-    for word in dictionary:
-        print word
+    print dictionary
+    # convert each document into 0-1 vector
+    train_mat = []
+    for doc in word_list:
+        vec = bayes.word2vec(dictionary, doc)
+        train_mat.append(vec)
+    p0_vec, p1_vec, prob_insult = bayes.train_naive_bayes(train_mat, labels)
+    print p0_vec
+    print p1_vec
+    print prob_insult
 
+
+def test_naive_bayes():
+    word_list, labels = bayes.load_data_set()
+    dictionary = bayes.create_vocab_list(word_list)
+    train_mat = []
+    for doc in word_list:
+        vec = bayes.word2vec(dictionary, doc)
+        train_mat.append(vec)
+    p0_vec, p1_vec, prob_insult = bayes.train_naive_bayes(train_mat, labels)
+
+    # test example 1:  non-spam
+    test1 = ['love', 'my', 'dalmation']
+    test1_vec = array(bayes.word2vec(dictionary, test1))
+    test1_res = bayes.classify_naive_bayes(test1_vec, p0_vec, p1_vec, prob_insult)
+    print test1, ': classified as: ', test1_res
+
+    # test example 2: spam
+    test2 = ['stupid', 'garbage']
+    test2_vec = array(bayes.word2vec(dictionary, test2))
+    test2_res = bayes.classify_naive_bayes(test2_vec, p0_vec, p1_vec, prob_insult)
+    print test2, ': classified as: ', test2_res
 
 def main():
-    test_load()
+    test_naive_bayes()
 
 if __name__ == "__main__":
     main()
