@@ -41,6 +41,15 @@ def word2vec(vocab_list, input_set):
     return ret_vec
 
 
+# Using bag-of-word model
+def bag_of_vector2words(vocab_list, input_set):
+    ret_vec = [0] * len(vocab_list)
+    for word in input_set:
+        if word in vocab_list:
+            ret_vec[vocab_list.index(word)] += 1   # only difference with set-of-word model
+    return ret_vec
+
+
 def train_naive_bayes(train_matrix, train_label):
     # step 1: calculate the num of the doc and the total words in the dictionary
     num_of_doc = len(train_matrix)
@@ -76,6 +85,7 @@ def classify_naive_bayes(vec_to_test, p0_vec, p1_vec, prob_insult):
         return 'insulting comment!!!'
     else:
         return 'friendly comment'
+
 
 
 
