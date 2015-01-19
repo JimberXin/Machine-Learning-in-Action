@@ -6,7 +6,6 @@
 # ====================================================================
 
 from numpy import *
-from math import log
 
 
 # create the word lists and their labels
@@ -50,6 +49,7 @@ def bag_of_vector2words(vocab_list, input_set):
     return ret_vec
 
 
+# Giving a 0-1 training matrix and their corresponding labels ,return each word's prob
 def train_naive_bayes(train_matrix, train_label):
     # step 1: calculate the num of the doc and the total words in the dictionary
     num_of_doc = len(train_matrix)
@@ -59,12 +59,13 @@ def train_naive_bayes(train_matrix, train_label):
     prob_insult = sum(train_label) / float(num_of_doc)
 
     # step 3: initialize numerator and denominator
-    p0_numerator = zeros(num_of_word)
-    p1_numerator = zeros(num_of_word)
-    p0_denominator = 0.0
-    p1_denominator = 0.0
+    p0_numerator = ones(num_of_word)    # changes to ones(), in case it's close to 0
+    p1_numerator = ones(num_of_word)
+    p0_denominator = 2.0                # changes 0.0 to 2.0, in case it's very small
+    p1_denominator = 2.0
 
-    # step 3: for each doc,
+    # step 4: for p0_vec and p1_vec, each elements stand for it's conditional probability
+    #         p0_vec = [p(w1|c0), p(w2|c0), p(w3|c0), ..., p(wn|c0)]
     for i in range(num_of_doc):
         if train_label[i] == 1:
             p1_numerator += train_matrix[i]   # add each word in the document
@@ -72,19 +73,20 @@ def train_naive_bayes(train_matrix, train_label):
         else:
             p0_numerator += train_matrix[i]
             p0_denominator += sum(train_matrix[i])
-    p0_vec = p0_numerator / p0_denominator
-    p1_vec = p1_numerator / p1_denominator
+    p0_vec = log(p0_numerator/p0_denominator)       # change to log()
+    p1_vec = log(p1_numerator/p1_denominator)       # change to log()
     return p0_vec, p1_vec, prob_insult
 
 
 # giving the test word vector: vec_to_test, classify it as insult(1) or not(0)
 def classify_naive_bayes(vec_to_test, p0_vec, p1_vec, prob_insult):
+    # base on the NB:  p(c_i|w) = p(w_1|c_i)p(w_2|c_i)...p(w_n|c_i) * p(c_i) / p(w)
     p1 = sum(vec_to_test * p1_vec) + log(prob_insult)
-    p0 = sum(vec_to_test * p0_vec) + log(1 - prob_insult)
+    p0 = sum(vec_to_test * p0_vec) + log(1.0 - prob_insult)
     if p1 > p0:
-        return 'insulting comment!!!'
+        return 1
     else:
-        return 'friendly comment'
+        return 0
 
 
 
