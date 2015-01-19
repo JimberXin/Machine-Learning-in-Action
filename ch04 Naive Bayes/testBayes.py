@@ -5,6 +5,7 @@
 from numpy import array
 import bayes
 import spamClassify
+import RSSClassify
 
 
 def test_load():
@@ -52,9 +53,17 @@ def test_spam():
     print res / counts
 
 
+def test_rss():
+    import feedparser
+    ny = feedparser.parse('http://newyork.craigslist.org/stp/index.rss')
+    sf = feedparser.parse('http://sfbay.craigslist.org/stp/index.rss')
+    dictionary, p_sf, p_ny = RSSClassify.local_words(ny, sf)
+
+
 def main():
     # test_naive_bayes()
-    test_spam()
+    # test_spam()
+    test_rss()
 
 
 if __name__ == "__main__":
