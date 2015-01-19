@@ -1,9 +1,10 @@
 '''
-    @Description: Test file of bayes
+    @Description: Test file of bayes classifier
 '''
 
 from numpy import array
 import bayes
+import spamClassify
 
 
 def test_load():
@@ -31,19 +32,30 @@ def test_naive_bayes():
     p0_vec, p1_vec, prob_insult = bayes.train_naive_bayes(train_mat, labels)
 
     # test example 1:  non-spam
-    test1 = ['love', 'my', 'dalmation']
+    test1 = ['love', 'my', 'dalmation', 'garbage']
     test1_vec = array(bayes.word2vec(dictionary, test1))
     test1_res = bayes.classify_naive_bayes(test1_vec, p0_vec, p1_vec, prob_insult)
     print test1, ': classified as: ', test1_res
 
     # test example 2: spam
-    test2 = ['stupid', 'garbage']
+    test2 = ['dalmation']
     test2_vec = array(bayes.word2vec(dictionary, test2))
     test2_res = bayes.classify_naive_bayes(test2_vec, p0_vec, p1_vec, prob_insult)
     print test2, ': classified as: ', test2_res
 
+
+def test_spam():
+    res = 0.0
+    counts = 20  # test numbers
+    for i in range(counts):
+        res += spamClassify.spam_classify()
+    print res / counts
+
+
 def main():
-    test_naive_bayes()
+    # test_naive_bayes()
+    test_spam()
+
 
 if __name__ == "__main__":
     main()
