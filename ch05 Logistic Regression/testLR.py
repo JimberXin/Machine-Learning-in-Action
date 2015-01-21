@@ -28,8 +28,8 @@ def test_sto_improve():
 
 def main():
     # test_base()
-    # test_sto()
-    test_sto_improve()
+    test_sto()
+    # test_sto_improve()
 
 
 if __name__ == '__main__':
