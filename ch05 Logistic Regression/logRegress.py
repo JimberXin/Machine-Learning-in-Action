@@ -1,10 +1,10 @@
 
-# ====================================================================
+# =============================================================================
 # @Author: Junbo Xin
 # @Date: 2015/01/20
 # @Description:   Logistic Regressions
 # @More details:  http://blog.csdn.net/dongtingzhizi/article/details/15962797
-# ====================================================================
+# ============================================================================
 
 from numpy import *
 import matplotlib.pyplot as plt
@@ -86,6 +86,7 @@ def sto_grad_ascent(data_input, label_input):
     return weights
 
 
+# improved gradient ascent algorithm to
 def sto_grad_ascent_improve(data_input, label_input, iter_num=150):
     rows, cols = shape(data_input)
     weights = ones(cols)
@@ -96,11 +97,63 @@ def sto_grad_ascent_improve(data_input, label_input, iter_num=150):
             rand_index = int(random.uniform(0, len(data_index)))
             h = sigmoid(sum(data_input[rand_index]*weights))
             error = label_input[rand_index] - h
-            weights += alpha * error * error * data_input[rand_index]
+            weights += alpha * error * data_input[rand_index]
             del(data_index[rand_index])
     return weights
 
 
+def classify(input_vec, weights):
+    prob = sigmoid(sum(input_vec*weights))
+    if prob > 0.5:
+        return 1.0
+    else:
+        return 0.0
+
+
+# function to test the colic illness of horse
+def coli_test():
+    fr_train = open('horseColicTraining.txt')
+    fr_test = open('horseColicTest.txt')
+    training_set = []
+    training_label = []
+
+    # training of the training file
+    for line in fr_train.readlines():
+        cur_line = line.strip().split('\t')
+        line_arr = []
+        # each line has 21 features
+        for i in range(21):
+            line_arr.append(float(cur_line[i]))
+        training_set.append(line_arr)
+        training_label.append(float(cur_line[21]))  # the 22th col is label
+    # get the training weights from improved algorithm
+    training_weights = sto_grad_ascent_improve(array(training_set), training_label, 500)
+
+    # test of the file
+    error_count = 0
+    num_test = 0.0
+    for line in fr_test.readlines():
+        num_test += 1.0
+        cur_line = line.strip().split('\t')
+        line_arr = []
+        for i in range(21):
+            line_arr.append(float(cur_line[i]))
+        if int(classify(array(line_arr), training_weights)) != \
+           int(cur_line[21]):
+            error_count += 1
+    error_rate = (float(error_count)/num_test)
+    print 'the error rate of this test is: %f' % error_rate
+    return error_rate
+
+
+# calc 10 times average error rates
+def multi_test():
+    num_test = 10
+    error = 0.0
+    for i in range(num_test):
+        error += coli_test()
+    print 'after %d iterations, the average error rate is:%f' % \
+    (num_test, error/float(num_test))
 
 
 
