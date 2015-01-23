@@ -1,4 +1,8 @@
-__author__ = 'JimberXin'
+# ======================================================================
+# @Author: Junbo Xin
+# @Date: 2015/01/24
+# @Description: Support Vector Machine Using SMO Algorithm
+# =======================================================================
 
 from numpy import *
 
