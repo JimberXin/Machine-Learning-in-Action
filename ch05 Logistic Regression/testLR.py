@@ -1,8 +1,8 @@
-# ====================================================================
+# ======================================================================
 # @Author: Junbo Xin
 # @Date: 2015/01/20
-# @Description: Test of Logistic Regressions
-# ====================================================================
+# @Description: Test of Logistic Regressions: several applications of LR
+# =======================================================================
 
 import logRegress
 from numpy import *
@@ -26,10 +26,14 @@ def test_sto_improve():
     logRegress.plot_fig(w)
 
 
+def test_multi():
+    logRegress.multi_test()
+
 def main():
     # test_base()
-    test_sto()
+    # test_sto()
     # test_sto_improve()
+    test_multi()
 
 
 if __name__ == '__main__':
