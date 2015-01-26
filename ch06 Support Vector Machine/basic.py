@@ -1,7 +1,7 @@
-# ======================================================================
+# =======================================================================
 # @Author: Junbo Xin
 # @Date: 2015/01/24
-# @Description: Support Vector Machine Using SMO Algorithm
+# @Description: basic funtion to be called by SVM
 # =======================================================================
 
 from numpy import *
@@ -34,5 +34,11 @@ def adjust_alpha(aj, high, low):
     if low > aj:
         aj = low
     return aj
+
+
+
+
+
+
 
 

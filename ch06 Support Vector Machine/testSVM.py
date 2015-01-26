@@ -4,14 +4,14 @@
 # @Description: test file for SVM
 # =======================================================================
 
-import SVM
+import basic
 
 
 def test_load():
-    data_arr, label_arr = SVM.load_data_set('testSet.txt')
+    data_arr, label_arr = basic.load_data_set('testSet.txt')
     print label_arr
 
-    
+
 def main():
     test_load()
 
