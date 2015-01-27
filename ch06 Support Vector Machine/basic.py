@@ -5,6 +5,7 @@
 # =======================================================================
 
 from numpy import *
+import time
 import matplotlib.pyplot as plt
 
 
@@ -40,6 +41,7 @@ def adjust_alpha(aj, high, low):
 # Implementation of basic SMO
 # Giving training data: data_input and label_input, and parameter C, toler, max_iter
 def smo_basic(data_input, label_input, C, toler, max_iter):
+    start_time = time.time()
     # step 0: initialization for data and label, alpha initialized with 0
     data_mat = mat(data_input)
     label_mat = mat(label_input).transpose()
@@ -118,6 +120,8 @@ def smo_basic(data_input, label_input, C, toler, max_iter):
         else:
             iter = 0
         print 'iteration number: %d' % iter
+    end_time = time.time()
+    print 'Total Training time is: %fs' % (end_time - start_time)
     return b, alphas
 
 
