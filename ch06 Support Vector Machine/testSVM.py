@@ -5,6 +5,8 @@
 # =======================================================================
 
 import basic
+import SVM_Platt
+from numpy import *
 
 
 def test_load():
@@ -18,8 +20,20 @@ def test_smo_basic():
     print alphas[alphas>0]
 
 
+def test_smo_platt():
+    data_arr, label_arr = basic.load_data_set('testSet.txt')
+    b, alphas = SVM_Platt.smo_platt(data_arr, label_arr, 0.6, 0.001, 40)
+    print alphas[alphas>0]
+
+
+def test_rbf():
+    SVM_Platt.test_rbf()
+
+
 def main():
-    test_smo_basic()
+    # test_smo_basic()
+    # test_smo_platt()
+    test_rbf()
 
 
 if __name__ == '__main__':
