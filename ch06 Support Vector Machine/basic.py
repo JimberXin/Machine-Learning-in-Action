@@ -1,7 +1,7 @@
 # =======================================================================
 # @Author: Junbo Xin
 # @Date: 2015/01/24
-# @Description: basic funtion to be called by SVM
+# @Description: basic function to be called by SVM
 # =======================================================================
 
 from numpy import *
@@ -80,7 +80,7 @@ def smo_basic(data_input, label_input, C, toler, max_iter):
                     print 'Low==High'
                     continue
 
-                # step 6: calculate eta = K11 + K22 - 2K12, make sure eta>0
+                # step 6: calculate eta = K11 + K22 - 2K12, make sure that eta > 0
                 eta = data_mat[i, :]*data_mat[i, :].T + data_mat[j, :]*data_mat[j, :].T \
                       - 2.0*data_mat[i, :]*data_mat[j, :].T
                 if eta <= 0:
