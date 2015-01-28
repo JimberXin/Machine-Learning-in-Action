@@ -113,6 +113,7 @@ def hand_writings_test():
         real_labels.append(real_digit)
         training_mat[row, :] = img_to_vector('digits/trainingDigits/%s' % file_name)
 
+    # test process
     test_list = listdir('digits/testDigits')
     error_count = 0
     test_num = len(test_list)
