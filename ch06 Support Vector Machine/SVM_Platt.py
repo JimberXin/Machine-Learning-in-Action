@@ -7,24 +7,28 @@
 from basic import *
 from numpy import *
 import time
+import matplotlib.pyplot as plt
 
 
 # define the structure of svm for storing data
 # add kernel to adjust non-linear case
 class SVMStuct:
-    def __init__(self, data_input, label_input, C, toler, kernel):
+    def __init__(self, data_input, label_input, C, toler, kernel_opt):
         self.train_x = data_input
         self.train_y = label_input
         self.C = C
         self.tol = toler
         self.m = shape(data_input)[0]
+        self.n = shape(data_input)[1]
         self.alphas = mat(zeros((self.m, 1)))
         self.b = 0.0
         self.error_cache = mat(zeros((self.m, 2)))  # 1st col: valid or not,  2rd: error value
+        self.kernel_opt = kernel_opt
         self.kernel = mat(zeros((self.m, self.m)))  # k(xi,xj) : i,j =1,2,...m, so kernel is m*m matrix
         # for each row in training set, update kernel's col
         for i in range(self.m):
-            self.kernel[:, i] = kernel_calc(self.train_x, self.train_x[i, :], kernel)
+            self.kernel[:, i] = kernel_calc(self.train_x, self.train_x[i, :], kernel_opt)
+        # w = sum(alpha[i] * y[i] * X[i]),  a n*1 vector
 
 
 # calculate the k-th sample's error
@@ -64,6 +68,26 @@ def select_j(svm, i, error_i):
 def update_error_k(svm, k):
     error_k = calc_k_error(svm, k)
     svm.error_cache[k] = [1, error_k]
+
+# @Input: train_x: m*n,  test_x: 1*n
+# @Output: K: m*1
+# @Description: for each row i of train_x(i=1,2,...,m), calc K[i] = Kernel(train_x[i], test[i])
+# @rbf:   K(x, y) = -exp(||x-y||2^2)/(2*sigma^2)
+
+
+def kernel_calc(train_x, test_x, kernel_opt):
+    m, n = shape(train_x)
+    K = mat(zeros((m, 1)))
+    if kernel_opt[0] == 'lin':
+        K = train_x * test_x.T
+    elif kernel_opt[0] == 'rbf':
+        for j in range(m):
+            delta = train_x[j, :] - test_x   # 1*n vector
+            K[j] = delta * delta.T
+        K = exp(K/-1*kernel_opt[1]**2)   # kernel[1] is sigma
+    else:
+        raise NameError('Wrong kernel format!')
+    return K   # K is a m*1 vector
 
 
 # inner loop of svm, return wheter the current alpha pair has changed(1 for changed)
@@ -147,8 +171,9 @@ def inner_loop(svm, i):
         return 0   # if alpha i did not violate KKT condition, then return 0
 
 
-# improved platt smo algorithm
-def smo_platt(data_input, label_input, C, toler, max_iter, kernel=('lin', 0)):
+# train svm, obtain alphas and b. Decision boundary: y = sum(y[i]*alpha[i]*K(x,x[i]) + b
+# @data_input: m*n;  @label_input:1*n
+def train_svm(data_input, label_input, C, toler, max_iter, kernel=('lin', 0)):
     start_time = time.time()
     svm = SVMStuct(mat(data_input), mat(label_input).transpose(), C, toler, kernel)
 
@@ -159,7 +184,7 @@ def smo_platt(data_input, label_input, C, toler, max_iter, kernel=('lin', 0)):
     # Iteration termination condition:
     # (1): reach max_iter:  iter == max_iter
     # (2): no alphas changed after going through all samples
-    #      in other words, all alpha(samples) satisfy KKT conditon
+    #      in other words, all alpha(samples) satisfy KKT condition
     while (iter < max_iter) and ((alpha_pair_changed > 0) or (entire_set)):
         alpha_pair_changed = 0
 
@@ -181,81 +206,76 @@ def smo_platt(data_input, label_input, C, toler, max_iter, kernel=('lin', 0)):
         # alternate loop over all examples and non-boundary examples
         if entire_set:
             entire_set = False
-        elif alpha_pair_changed:
+        elif alpha_pair_changed == 0:
             entire_set = True
         print 'iteration number:%d' % iter
 
     end_time = time.time()
     print 'Total Training time is: %fs' % (end_time - start_time)
-    return svm.b, svm.alphas
+    return svm
 
 
-# Giving alphas and the training data, calc w = sum(alphas[i]*y[i]*x[i])
-def calc_weights(alphas, data_input, label_input):
-    train_x = mat(data_input)
-    train_y = mat(label_input).transpose()
-    m, n = shape(train_x)
-    w = zeros((n, 1))
-    for i in range(m):
-        w += multiply(alphas[i]*train_y[i], train_x[i, :].T)
-    return w
+# giving the svm and test data, calculate test error
+def test_svm(svm, test_x, test_y):
+    # ==================================== step 1: pre-process test data ===============================
+    svm_index = nonzero(svm.alphas.A > 0)[0]
+    data_mat = mat(test_x)
+    label_mat = mat(test_y).transpose()
 
-
-# @Input: train_x: m*n,  test_x: 1*n
-# @Output: K: m*1
-# @Description: for each row i of train_x(i=1,2,...,m), calc K[i] = Kernel(train_x[i], test[i])
-# @rbf:   K(x, y) = -exp(||x-y||2^2)/(2*sigma^2)
-def kernel_calc(train_x, test_x, kernel):
-    m, n = shape(train_x)
-    K = mat(zeros((m, 1)))
-    if kernel[0] == 'lin':
-        K = train_x * test_x.T
-    elif kernel[0] == 'rbf':
-        for j in range(m):
-            delta = train_x[j, :] - test_x   # 1*n vector
-            K[j] = delta * delta.T
-        K = exp(K/-1*kernel[1]**2)   # kernel[1] is sigma
-    else:
-        raise NameError('Wrong kernel format!')
-    return K   # K is a m*1 vector
-
-
-# test rbf kernel svm
-def test_rbf(k1=2.3):
-    # step 1: obtain alphas and b, then get the decision boundary: y = sum(alpha[i]*y[i]*x[i]) * x + b
-    data_arr, label_arr = load_data_set('testSetRBF.txt')
-    b, alphas = smo_platt(data_arr, label_arr, 200, 0.0001, 10000, ('rbf', k1))
-    data_mat = mat(data_arr)
-    label_mat = mat(label_arr).transpose()
-    svm_index = nonzero(alphas.A > 0)[0]   # only non-zero alphas are support vector
+    # ======================= step 2: get the data, label, alpha in support vector format ==============
     support_vec = data_mat[svm_index]
     label_sv = label_mat[svm_index]
+    alphas_sv = svm.alphas[svm_index]
     print 'there are %d support vectors' % shape(support_vec)[0]
 
-    # step 2: calculate the training set error
-    # y = w'x+b = sum(alphas[i] * y[i] * K(x, x[i])) + b
-    m, n = shape(data_mat)
+    # ================================ step 2: calculate the test error ================================
+    m = shape(test_x)[0]   # get the number of test data
     error_count = 0
     for i in range(m):
-        # only calc the support vector(non-zeros alphas)
-        kernel_val = kernel_calc(support_vec, data_mat[i, :], ('rbf', k1))
-        predict_y = kernel_val.T * multiply(label_sv, alphas[svm_index]) + b
-        if sign(predict_y) != sign(label_arr[i]):
-            error_count += 1
-    print 'the training error rate is: %f' % (float(error_count)/m)
-
-    # step 3: calculate the test set error
-    test_arr, label_test_arr = load_data_set('testSetRBF2.txt')
-    error_count = 0
-    test_x = mat(test_arr)
-    test_y = mat(label_test_arr).transpose()
-    m, n = shape(test_x)
-    for i in range(m):
-        kernel_val = kernel_calc(support_vec, test_x[i, :], ('rbf', k1))
-        predict_y = kernel_val.T* multiply(label_sv, alphas[svm_index]) + b
+        kernel_val = kernel_calc(support_vec, data_mat[i, :], svm.kernel_opt)
+        predict_y = kernel_val.T * multiply(label_sv, alphas_sv) + svm.b
         if sign(predict_y) != sign(test_y[i]):
             error_count += 1
-    print 'the test error rate is: %f' % (float(error_count)/m)
+    error_rate = float(error_count)/m
+    print 'the test error rate is: %f' % error_rate
+
+
+def show_svm(svm):
+    if svm.train_x.shape[1] != 2:
+        print 'dimensions is not 2, cannot draw!'
+        return 1
+
+    plt.xlabel('x1')
+    plt.ylabel('x2')
+    plt.title('SVM Classifier')
+    # plot all the training examples, -1 as red color, 1 as blue color
+    for i in xrange(svm.m):
+        if svm.train_y[i] == -1:
+            plt.plot(svm.train_x[i, 0], svm.train_x[i, 1], 'or')
+        else:
+            plt.plot(svm.train_x[i, 0], svm.train_x[i, 1], 'sb')
+
+    # mark the support vectors as yellow color
+    sv_index = nonzero(svm.alphas.A > 0)[0]
+    for i in sv_index:
+        if svm.train_y[i] == -1:
+            plt.plot(svm.train_x[i, 0], svm.train_x[i, 1], 'og')
+        else:
+            plt.plot(svm.train_x[i, 0], svm.train_x[i, 1], 'sg')
+
+    # draw the decision boundary
+    w = zeros((2, 1))
+    for i in sv_index:
+        w += multiply(svm.alphas[i]*svm.train_y[i], svm.train_x[i, :].T)
+
+    min_x = min(svm.train_x[:, 0])[0, 0]
+    max_x = max(svm.train_x[:, 0])[0, 0]
+    y_min = float(-svm.b - w[0] * min_x) / w[1]
+    y_max = float(-svm.b - w[0] * max_x) / w[1]
+    plt.plot([min_x, max_x], [y_min, y_max], '-g')
+    plt.show()
+
+
 
 
 
