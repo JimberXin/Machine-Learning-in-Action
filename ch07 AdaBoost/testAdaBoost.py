@@ -15,8 +15,10 @@ def test_stump():
 
 
 def main():
-    test_stump()
-
+    # test_stump()
+    data_mat, data_label = adaBoost.load_simple_data()
+    D = mat(ones((5, 1))/5)
+    adaBoost.ada_boost_train(data_mat, data_label)
 
 if __name__ == '__main__':
     main()
