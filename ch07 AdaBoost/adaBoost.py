@@ -20,7 +20,8 @@ def load_simple_data():
 # boundary:  condition 1):  if x[dimen]_i < threshold, y_i = 1, else y_i = -1
 #            condition 2):  if x[dimen]_i > threshold, y_i = 1, else y_i = -1
 def stump_classify(data_mat, dimen, threshold, inequal):
-    ret_arr = ones((shape(data_mat)[0], 1))  # the whole vector initializes with 1
+    m, n = shape(data_mat)
+    ret_arr = ones((m, 1))  # the whole vector initializes with 1
     if inequal == 'less than':
         ret_arr[data_mat[:, dimen] <= threshold] = -1.0
     else:
@@ -36,24 +37,30 @@ def build_stump(data_arr, label_arr, weight_arr):
     best_stump = {}   # decision tree info
     label_predict = mat(zeros((m, 1)))   # a m*1 vector, 1 or -1
     min_error = inf
+
+    # min_arr, max_arr saves the min and max value of each col, 0 stands for perform by col
+    min_arr = data_mat.min(0)
+    max_arr = data_mat.max(0)
+
     #  step 1: go through each dimension of data set, i.e, each col
     for i in range(n):
-        min_val = data_mat[:, i].min()
-        max_val = data_mat[:, i].max()
-        step_size = (max_val - min_val) / num_step
-
+        # min_val = data_mat[:, i].min()
+        # max_val = data_mat[:, i].max()
+        step_size = (max_arr[0, i] - min_arr[0, i]) / num_step
         # step 2: go through each threshold of this dimension
         for j in range(-1, int(num_step)+1):
 
             # step 3: go through both equality: <  and  >
             for inequal in ['less than', 'greater than']:
-                threshold = min_val + float(j)*step_size
+                threshold = min_arr[0, i] + float(j)*step_size
                 predict_label = stump_classify(data_mat, i, threshold, inequal)
                 error_arr = mat(ones((m, 1)))
                 error_arr[predict_label == label_mat] = 0
                 weight_error = weight_arr.T * error_arr
-                print 'dimension: %d, threshold: %2.f, inequal: %s, weight error: %f' %\
+                '''
+                print 'dimension: %d, threshold: %.2f, inequal: %s, weight error: %f' %\
                       (i, threshold, inequal, weight_error)
+                '''
 
                 # update min_error and best_stump if needed
                 if weight_error < min_error:
@@ -67,6 +74,31 @@ def build_stump(data_arr, label_arr, weight_arr):
     # @ min_error: a real value, the total error weights sum(w[i]), if y[i] != predict[i]
     # @ label_predict: a m*1 vector, predict each sample's label
     return best_stump, min_error, label_predict
+
+
+def ada_boost_train(data_arr, label_arr, num_iter=40):
+    weak_classifier = []
+    m, n = shape(data_arr)
+    weight = mat(ones((m, 1))/m)
+    label_predict = mat(zeros((m, 1)))
+
+    for i in range(num_iter):
+        best_stump, error, label_predict = build_stump(data_arr, label_arr, weight)
+        print 'weights:', weight.T
+        # in case error is 0, set the divisor to be a small value near 0
+        alpha = 0.5 * log(1-error)/max(error, 1e-16)
+        best_stump['alpha'] = alpha
+        weak_classifier.append(best_stump)
+        print 'label predict: ', label_predict.T
+
+        # weights of the sample to be update
+        expon = multiply(-1*alpha*mat(label_arr).T, label_predict)
+        weight = multiply(weight, exp(expon))
+        weight = weight / weight.sum()
+
+        
+
+
 
 
 
