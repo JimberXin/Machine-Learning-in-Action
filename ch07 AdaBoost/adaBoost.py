@@ -29,6 +29,7 @@ def stump_classify(data_mat, dimen, threshold, inequal):
     return ret_arr
 
 
+# giving the training set, return the current best stump classifier(2-class classifier)
 def build_stump(data_arr, label_arr, weight_arr):
     data_mat = mat(data_arr)
     label_mat = mat(label_arr).T
@@ -80,13 +81,13 @@ def ada_boost_train(data_arr, label_arr, num_iter=40):
     weak_classifier = []
     m, n = shape(data_arr)
     weight = mat(ones((m, 1))/m)
-    label_predict = mat(zeros((m, 1)))
+    class_weight = mat(zeros((m, 1)))
 
     for i in range(num_iter):
         best_stump, error, label_predict = build_stump(data_arr, label_arr, weight)
         print 'weights:', weight.T
         # in case error is 0, set the divisor to be a small value near 0
-        alpha = 0.5 * log(1-error)/max(error, 1e-16)
+        alpha = float(0.5 * log((1.0-error)/max(error, 1e-16)))
         best_stump['alpha'] = alpha
         weak_classifier.append(best_stump)
         print 'label predict: ', label_predict.T
@@ -94,9 +95,28 @@ def ada_boost_train(data_arr, label_arr, num_iter=40):
         # weights of the sample to be update
         expon = multiply(-1*alpha*mat(label_arr).T, label_predict)
         weight = multiply(weight, exp(expon))
-        weight = weight / weight.sum()
 
-        
+        # update the weights of each sample in the next iteration
+        # Zm = weight.sum()
+        weight = weight / weight.sum()    # w(m+1) = w(m)*exp[-alpha(m)*y(i)*Gm(xi)]
+
+        # obtain the i-th iteration linear classifier:  f(x) = sum(m=1,...,i)[alpha[i]*Gm(x)]
+        class_weight += alpha * label_predict
+        print 'class estimate: ', class_weight.T
+
+        errors = multiply(sign(class_weight) != mat(label_arr).T, ones((m, 1)))
+        error_rate = errors.sum()/m
+        print 'total error: ', error_rate
+        if error_rate == 0.0:
+            break
+
+    # return a list, each element is a dict includes:
+    #         dimension d, inequality > or <, threshold, and alpha
+    return weak_classifier
+
+
+
+
 
 
 
