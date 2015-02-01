@@ -11,7 +11,8 @@ import adaBoost
 def test_stump():
     data_mat, data_label = adaBoost.load_simple_data()
     D = mat(ones((5, 1))/5)
-    adaBoost.build_stump(data_mat, data_label, D)
+    # adaBoost.build_stump(data_mat, data_label, D)
+    classifier = adaBoost.ada_boost_train(data_mat, data_label, 9)
 
 
 def main():
