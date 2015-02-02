@@ -15,11 +15,15 @@ def test_stump():
     classifier = adaBoost.ada_boost_train(data_mat, data_label, 9)
 
 
+def test_classifier():
+    data_mat, data_label = adaBoost.load_simple_data()
+    weak_classifier = adaBoost.ada_boost_train(data_mat, data_label, 9)
+    adaBoost.ada_classifier([0, 0], weak_classifier)
+
+
 def main():
     # test_stump()
-    data_mat, data_label = adaBoost.load_simple_data()
-    D = mat(ones((5, 1))/5)
-    adaBoost.ada_boost_train(data_mat, data_label)
+    test_classifier()
 
 if __name__ == '__main__':
     main()
