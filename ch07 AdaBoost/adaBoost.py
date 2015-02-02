@@ -77,6 +77,7 @@ def build_stump(data_arr, label_arr, weight_arr):
     return best_stump, min_error, label_predict
 
 
+# giving the data set, return the classifier that is consist of several weak classifiers
 def ada_boost_train(data_arr, label_arr, num_iter=40):
     weak_classifier = []
     m, n = shape(data_arr)
