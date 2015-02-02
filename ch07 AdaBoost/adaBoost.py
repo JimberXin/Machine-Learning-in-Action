@@ -116,8 +116,18 @@ def ada_boost_train(data_arr, label_arr, num_iter=40):
     return weak_classifier
 
 
+# giving the data set and losts of single classifier, get the combination of single classifier
+def ada_classifier(data, weak_classifier):
+    data_mat = mat(data)
+    m, n = shape(data_mat)
+    final_classifier = mat(zeros((m, 1)))
+    for i in range(len(weak_classifier)):
+        classifier = stump_classify(data_mat, weak_classifier[i]['dimension'], \
+                                    weak_classifier[i]['threshold'], weak_classifier[i]['inequal'])
 
-
+        final_classifier += weak_classifier[i]['alpha'] * classifier
+        print final_classifier
+    return sign(final_classifier)
 
 
 
