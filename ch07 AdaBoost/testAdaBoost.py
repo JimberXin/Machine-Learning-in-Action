@@ -6,6 +6,7 @@
 
 from numpy import *
 import adaBoost
+import testROC
 
 
 def test_stump():
@@ -23,7 +24,10 @@ def test_classifier():
 
 def main():
     # test_stump()
-    test_classifier()
+    # test_classifier()
+    # testROC.test_file()
+    testROC.test_roc()
+
 
 if __name__ == '__main__':
     main()
