@@ -86,12 +86,12 @@ def ada_boost_train(data_arr, label_arr, num_iter=40):
 
     for i in range(num_iter):
         best_stump, error, label_predict = build_stump(data_arr, label_arr, weight)
-        print 'weights:', weight.T
+        # print 'weights:', weight.T
         # in case error is 0, set the divisor to be a small value near 0
         alpha = float(0.5 * log((1.0-error)/max(error, 1e-16)))
         best_stump['alpha'] = alpha
         weak_classifier.append(best_stump)
-        print 'label predict: ', label_predict.T
+        # print 'label predict: ', label_predict.T
 
         # weights of the sample to be update
         expon = multiply(-1*alpha*mat(label_arr).T, label_predict)
@@ -103,7 +103,7 @@ def ada_boost_train(data_arr, label_arr, num_iter=40):
 
         # obtain the i-th iteration linear classifier:  f(x) = sum(m=1,...,i)[alpha[i]*Gm(x)]
         class_weight += alpha * label_predict
-        print 'class estimate: ', class_weight.T
+        # print 'class estimate: ', class_weight.T
 
         errors = multiply(sign(class_weight) != mat(label_arr).T, ones((m, 1)))
         error_rate = errors.sum()/m
@@ -113,7 +113,7 @@ def ada_boost_train(data_arr, label_arr, num_iter=40):
 
     # return a list, each element is a dict includes:
     #         dimension d, inequality > or <, threshold, and alpha
-    return weak_classifier
+    return weak_classifier, class_weight  #
 
 
 # giving the data set and losts of single classifier, get the combination of single classifier
@@ -126,7 +126,7 @@ def ada_classifier(data, weak_classifier):
                                     weak_classifier[i]['threshold'], weak_classifier[i]['inequal'])
 
         final_classifier += weak_classifier[i]['alpha'] * classifier
-        print final_classifier
+        # print final_classifier
     return sign(final_classifier)
 
 
