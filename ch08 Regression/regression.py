@@ -37,13 +37,22 @@ def plot_line():
     x_mat = mat(x_arr)
     y_mat = mat(y_arr)
 
-
-    # plot the figure
+    # plot the scatter: the real value
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.scatter(x_mat[:, 1].flatten().A[0], y_mat.T[:, 0].flatten().A[0])
-    x_copy = x_mat.copy()
+    ax.scatter(array(x_arr)[:, 1], array(y_mat.T)[:, 0], c='red')
+    # ax.scatter(x_mat[:, 1].flatten().A[0], y_mat.T[:, 0].flatten().A[0], c='red')
+
+    # plot the line, predict one of regression
+    x_copy = array(x_mat.copy())
     x_copy.sort(0)
-    y_hat = x_copy * w
-    ax.plot(x_copy[:, 1], y_hat)
+    y_hat = array(x_copy * w)
+    ax.plot(x_copy[:, 1], y_hat)  # plot parameter should be array, not matrix
+
+    # calculate the correlative coefficient
+    y_hat = x_mat * w  # here y_hat is matrix, different from the previous array
+    print corrcoef(y_hat.T, y_mat)
+
     plt.show()
+
+
