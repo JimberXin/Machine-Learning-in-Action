@@ -7,20 +7,21 @@
 from numpy import *
 
 
+# giving a training file, return the list format: data_mat, label_mat
 def load_data_set(file_name):
     num = len(open(file_name).readline().split('\t'))-1
-    data_mat = []
-    label_mat = []
+    data_arr = []
+    label_arr = []
     fr = open(file_name).readlines()
     for line in fr:
         line_arr = []
         cur_line = line.strip().split('\t')
         for i in range(num):
             line_arr.append(float(cur_line[i]))
-        data_mat.append(line_arr)
-        label_mat.append(float(cur_line[-1]))
+        data_arr.append(line_arr)
+        label_arr.append(float(cur_line[-1]))
 
-    return data_mat, label_mat
+    return data_arr, label_arr
 
 
 # for y = w^T * x,  w = (X^T*X)^-1 * X^T * y
@@ -38,32 +39,32 @@ def calc_weight(x_arr, y_arr):
 # giving the data set, plot the scatter figure and the estimate regression line y_hat = w * x
 def plot_line():
     import matplotlib.pyplot as plt
-    # obtain the weight: w
+    # step 1: obtain the weight: w
     x_arr, y_arr = load_data_set('ex0.txt')
-    w = calc_weight(x_arr, y_arr)
     x_mat = mat(x_arr)
     y_mat = mat(y_arr)
+    w = calc_weight(x_arr, y_arr)
 
-    # plot the scatter: the real value
+    # step 2: plot the scatter: the real value
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.scatter(array(x_arr)[:, 1], array(y_mat.T)[:, 0], c='red')
     # ax.scatter(x_mat[:, 1].flatten().A[0], y_mat.T[:, 0].flatten().A[0], c='red')
 
-    # plot the line, predict one of regression
+    # step 3: plot the line, predict one of regression
     x_copy = array(x_mat.copy())
     x_copy.sort(0)
     y_hat = array(x_copy * w)
     ax.plot(x_copy[:, 1], y_hat)  # plot parameter should be array, not matrix
 
-    # calculate the correlative coefficient
+    # step 4: calculate the correlative coefficient
     y_hat = x_mat * w  # here y_hat is matrix, different from the previous array
     print corrcoef(y_hat.T, y_mat)
 
     plt.show()
 
 
-#  w_hat = (X^T * W * X)* X^T * W * y
+# giving the single test point, the training data(x_arr and y_arr), and k of Gauss kernel, return y predict
 def local_weight_point_test(test_point, x_arr, y_arr, k=1.0):
     x_mat = mat(x_arr)
     y_mat = mat(y_arr).T
@@ -76,10 +77,11 @@ def local_weight_point_test(test_point, x_arr, y_arr, k=1.0):
     if linalg.det(x) == 0.0:
         print 'This matrix is singular, cannot do inverses'
         return
-    ws = x.I * x_mat.T * weights * y_mat
+    ws = x.I * x_mat.T * weights * y_mat   # w_hat = (X^T * W * X)* X^T * W * y
     return test_point * ws
 
 
+# giving a test_arr(m*n) and training data(x_arr, y_arr), return a predictive vector y_hat(m*1)
 def local_weight_array_test(test_arr, x_arr, y_arr, k=1.0):
     m, n = shape(x_arr)
     y_hat = zeros(m)
@@ -88,22 +90,47 @@ def local_weight_array_test(test_arr, x_arr, y_arr, k=1.0):
     return y_hat
 
 
+#
 def plot_line_lw():
     import matplotlib.pyplot as plt
+    # step 1: data preprocess
     x_arr, y_arr = load_data_set('ex0.txt')
-    y_hat = local_weight_array_test(x_arr, x_arr, y_arr, k=3)
     x_mat = mat(x_arr)
     y_mat = mat(y_arr)
-    sorted_index = x_mat[:, 1].argsort(0)
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-
+    sorted_index = x_mat[:, 1].argsort(0)  # sort the x_mat of the 2nd col, for plot figure
     x_copy = x_mat.copy()
     x_copy.sort(0)
-    ax.scatter(array(x_mat[:, 1]), array(y_mat.T[:, 0]), c='red')
-    ax.plot(array(x_copy[:, 1]), array(y_hat[sorted_index]))
-    ax.plot()
+
+    # step 2: plot the scatter: the real value
+    fig = plt.figure()
+    ax1 = fig.add_subplot(311)  # subplot(a,b,c): rows, cols, current num. all < 10, ignore ','
+    ax2 = fig.add_subplot(312)
+    ax3 = fig.add_subplot(313)
+    ax1.scatter(array(x_mat[:, 1]), array(y_mat.T[:, 0]), c='yellow')
+    ax2.scatter(array(x_mat[:, 1]), array(y_mat.T[:, 0]), c='yellow')
+    ax3.scatter(array(x_mat[:, 1]), array(y_mat.T[:, 0]), c='yellow')
+
+    # step 3: plot different types of regressions with different k
+    y_hat1 = local_weight_array_test(x_arr, x_arr, y_arr, k=3)
+    ax1.plot(array(x_copy[:, 1]), array(y_hat1[sorted_index]), c='red', linewidth=1.2)
+    plt.sca(ax1)
+    plt.xlim(0, 1.0)
+    plt.ylim(3.0, 5.0)
+    plt.title('k=3')
+
+    y_hat2 = local_weight_array_test(x_arr, x_arr, y_arr, k=0.05)
+    ax2.plot(array(x_copy[:, 1]), array(y_hat2[sorted_index]), c='red', linewidth=1.2)
+    plt.sca(ax2)
+    plt.xlim(0, 1.0)
+    plt.ylim(3.0, 5.0)
+    plt.title('k=0.05')
+
+    y_hat3 = local_weight_array_test(x_arr, x_arr, y_arr, k=0.003)
+    ax3.plot(array(x_copy[:, 1]), array(y_hat3[sorted_index]), c='red', linewidth=1.2)
+    plt.sca(ax3)
+    plt.xlim(0, 1.0)
+    plt.ylim(3.0, 5.0)
+    plt.title('k=0.003')
     plt.show()
 
 
