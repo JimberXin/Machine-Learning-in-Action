@@ -12,9 +12,14 @@ def test_plot():
     regression.plot_line()
 
 
+def test_local_lr():
+    regression.plot_line_lw()
+
+
 def main():
     # test_basic()
-    test_plot()
+    # test_plot()
+    test_local_lr()
 
 
 if __name__ == '__main__':
