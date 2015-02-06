@@ -1,6 +1,6 @@
 # =================================================================================================
 # @Author: Junbo Xin
-# @Date: 2015/02/04-05
+# @Date: 2015/02/04-06
 # @Description: Simple Regression
 # =================================================================================================
 
@@ -69,17 +69,17 @@ def local_weight_point_test(test_point, x_arr, y_arr, k=1.0):
     x_mat = mat(x_arr)
     y_mat = mat(y_arr).T
     m, n = shape(x_mat)
-    weights = mat(eye((m)))
+    weights = mat(eye(m))
     for i in range(m):
         diff_mat = test_point - x_mat[i, :]  # difference between test_point and current point( i in 0--m)
         weights[i, i] = exp(diff_mat*diff_mat.T/(-2.0*k**2))
     x = x_mat.T * (weights*x_mat)
+
     if linalg.det(x) == 0.0:
         print 'This matrix is singular, cannot do inverses'
         return
     ws = x.I * x_mat.T * weights * y_mat   # w_hat = (X^T * W * X)* X^T * W * y
     return test_point * ws
-
 
 # giving a test_arr(m*n) and training data(x_arr, y_arr), return a predictive vector y_hat(m*1)
 def local_weight_array_test(test_arr, x_arr, y_arr, k=1.0):
@@ -90,7 +90,32 @@ def local_weight_array_test(test_arr, x_arr, y_arr, k=1.0):
     return y_hat
 
 
-#
+# pretty same with the local_weight_point_test, but in this function, we plot the weights of different data
+def plot_local_weight(test_point, x_arr, k=1.0):
+    import matplotlib.pyplot as plt
+    # process the data
+    x_mat = mat(x_arr)
+    m, n = shape(x_mat)
+    weights = mat(eye(m))
+    w_vector = zeros(m)
+
+    # get w_vector
+    for i in range(m):
+        diff_mat = test_point - x_mat[i, :]  # difference between test_point and current point( i in 0--m)
+        weights[i, i] = exp(diff_mat*diff_mat.T/(-2.0*k**2))
+        w_vector[i] = weights[i, i]
+
+    # sort the x and y, and plot the figure
+    x_copy = x_mat.copy()
+    sorted_index = x_mat[:, 1].argsort(0)
+    x_copy.sort(0)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(array(x_copy[:, 1]), w_vector[sorted_index], c='red')
+    plt.show()
+
+
+# test the local weight LR, and plot the 3 lines given 3 different k
 def plot_line_lw():
     import matplotlib.pyplot as plt
     # step 1: data preprocess
@@ -111,6 +136,7 @@ def plot_line_lw():
     ax3.scatter(array(x_mat[:, 1]), array(y_mat.T[:, 0]), c='yellow')
 
     # step 3: plot different types of regressions with different k
+    # case 1: k is too big, unfit
     y_hat1 = local_weight_array_test(x_arr, x_arr, y_arr, k=3)
     ax1.plot(array(x_copy[:, 1]), array(y_hat1[sorted_index]), c='red', linewidth=1.2)
     plt.sca(ax1)
@@ -118,19 +144,21 @@ def plot_line_lw():
     plt.ylim(3.0, 5.0)
     plt.title('k=3')
 
-    y_hat2 = local_weight_array_test(x_arr, x_arr, y_arr, k=0.05)
+    # case 2: k is neither too big nor too small, just fit well
+    y_hat2 = local_weight_array_test(x_arr, x_arr, y_arr, k=0.01)
     ax2.plot(array(x_copy[:, 1]), array(y_hat2[sorted_index]), c='red', linewidth=1.2)
     plt.sca(ax2)
     plt.xlim(0, 1.0)
     plt.ylim(3.0, 5.0)
-    plt.title('k=0.05')
+    plt.title('k=0.01')
 
-    y_hat3 = local_weight_array_test(x_arr, x_arr, y_arr, k=0.003)
+    # case 3: k is too small, overfit
+    y_hat3 = local_weight_array_test(x_arr, x_arr, y_arr, k=0.002)
     ax3.plot(array(x_copy[:, 1]), array(y_hat3[sorted_index]), c='red', linewidth=1.2)
     plt.sca(ax3)
     plt.xlim(0, 1.0)
     plt.ylim(3.0, 5.0)
-    plt.title('k=0.003')
+    plt.title('k=0.001')
     plt.show()
 
 
