@@ -6,6 +6,8 @@
 
 
 import regression
+import predictAge
+import ridgeRegress
 
 
 def test_basic():
@@ -27,11 +29,17 @@ def test_local_lr():
     regression.plot_line_lw()
 
 
+def ridge_test():
+    ridge_test()
+
+
 def main():
     # test_basic()
     # test_plot()
-    test_local_lr()
+    # test_local_lr()
     # test_plot_weight()
+    # predictAge.train_lr()
+    ridgeRegress.ridge_test()
 
 
 if __name__ == '__main__':
