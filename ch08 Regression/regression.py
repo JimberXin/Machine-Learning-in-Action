@@ -81,6 +81,7 @@ def local_weight_point_test(test_point, x_arr, y_arr, k=1.0):
     ws = x.I * x_mat.T * weights * y_mat   # w_hat = (X^T * W * X)* X^T * W * y
     return test_point * ws
 
+
 # giving a test_arr(m*n) and training data(x_arr, y_arr), return a predictive vector y_hat(m*1)
 def local_weight_array_test(test_arr, x_arr, y_arr, k=1.0):
     m, n = shape(x_arr)
