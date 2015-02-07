@@ -7,6 +7,7 @@
 
 import regression
 import predictAge
+import stageRidge
 import ridgeRegress
 
 
@@ -33,13 +34,18 @@ def ridge_test():
     ridge_test()
 
 
+def stage_test():
+    stageRidge.test_stage()
+
+
 def main():
     # test_basic()
     # test_plot()
     # test_local_lr()
     # test_plot_weight()
     # predictAge.train_lr()
-    ridgeRegress.ridge_test()
+    # ridgeRegress.ridge_test()
+    stage_test()
 
 
 if __name__ == '__main__':
