@@ -16,8 +16,16 @@ def test_basic():
     print mat1
 
 
+def test_create_tree():
+    my_dat = regressionTree.load_data_set('ex00.txt')
+    my_mat = mat(my_dat)
+    tree = regressionTree.create_tree(my_mat)
+    print tree
+
+
 def main():
-    test_basic()
+    # test_basic()
+    test_create_tree()
 
 
 if __name__ == '__main__':
