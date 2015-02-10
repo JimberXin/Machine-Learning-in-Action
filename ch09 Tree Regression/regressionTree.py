@@ -75,11 +75,21 @@ def choose_best_split(data_set, leaf_type=reg_leaf, err_type=reg_error, ops=(1, 
     return best_index, best_value
 
 
-def create_tree(data_set, leaf_type=reg_leaf, err_type=reg_err, ops=(1,4)):
+def create_tree(data_set, leaf_type=reg_leaf, err_type=reg_error, ops=(1, 4)):
+    # step 1: choose the best feature
     feat, val = choose_best_split(data_set, leaf_type, err_type, ops)
-    if feat == None:
+    if feat is None:
         return val
     ret_tree = {}
     ret_tree['split_index'] = feat
     ret_tree['split_value'] = val
-    left_set, right_set = bin_split_data(data_set, )
+
+    # step 2: split the data into two parts
+    left_set, right_set = bin_split_data(data_set, feat, val)
+
+    # step 3: for the left and right data set, recursively call the create_tree
+    ret_tree['left'] = create_tree(left_set, leaf_type, err_type, ops)
+    ret_tree['right'] = create_tree(right_set, leaf_type, err_type, ops)
+
+    return ret_tree
+
