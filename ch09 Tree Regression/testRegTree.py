@@ -24,7 +24,7 @@ def test_create_tree():
 
 
 def test_plot():
-    regressionTree.plot_data_set('ex00.txt')
+    regressionTree.plot_data_set('exp2.txt')
 
 
 def test_prune():
@@ -40,12 +40,22 @@ def test_prune():
     print tree
 
 
+def test_model_tree():
+    data_arr = regressionTree.load_data_set('exp2.txt')
+    training_mat = mat(data_arr)
+    my_tree = regressionTree.create_tree(training_mat, regressionTree.model_leaf, \
+                                         regressionTree.model_err, ops=(1, 10))
+    print my_tree
+    regressionTree.plot_data_set('exp2.txt')
+
+
+
 def main():
     # test_basic()
     # test_create_tree()
     # test_plot()
-    tree = test_prune()
-    print tree
+    # test_prune()
+    test_model_tree()
 
 
 if __name__ == '__main__':
