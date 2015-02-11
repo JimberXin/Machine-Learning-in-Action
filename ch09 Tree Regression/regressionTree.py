@@ -106,11 +106,51 @@ def plot_data_set(file_name):
         for i in range(n-1):
             line_arr.append(line[i])
         x_arr.append(line_arr)
-        y_arr.append(line[n-1])
+        y_arr.append(line[-1])
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.scatter(array(x_arr)[:, 1], array(mat(y_arr).T)[:, 0], c='blue')
+    ax.scatter(array(x_arr)[:, 0], array(mat(y_arr).T)[:, 0], c='blue')
     plt.show()
 
 
+# judge whether obj is a tree or not
+def is_tree(obj):
+    return type(obj).__name__ == 'dict'
+
+
+def get_mean(tree):
+    if is_tree(tree['right']):
+        tree['right'] = get_mean(tree['right'])
+    if is_tree(tree['left']):
+        tree['left'] = get_mean(tree['left'])
+    return (tree['left'] + tree['right']) / 2.0
+
+
+def prune(tree, test_data):
+    # step 1: if test data is empty, return
+    if shape(test_data) == 0:
+        return get_mean(tree)
+
+    # step 2: if test data is not empty, split it into 2 parts
+    if is_tree(tree['right']) or is_tree(tree['left']):
+        left_set, right_set = bin_split_data(test_data, tree['split_index'], tree['split_value'])
+    if is_tree(tree['left']):
+        tree['left'] = prune(tree['left'], left_set)
+    if is_tree(tree['right']):
+        tree['right'] = prune(tree['right'], right_set)
+
+    # step 3: when left and right subtree is empty, calculate the error
+    if not is_tree(tree['left']) and not is_tree(tree['right']):
+        left_set, right_set = bin_split_data(test_data, tree['split_index'], tree['split_value'])
+        err_not_merge = sum(power(left_set[:, -1] - tree['left'], 2)) + \
+                        sum(power(right_set[:, -1] - tree['right'], 2))
+        tree_mean = (tree['left'] + tree['right']) / 2.0
+        err_merge = sum(power(test_data[:, -1] - tree_mean, 2))
+        if err_merge < err_not_merge:
+            print 'mergeing'
+            return tree_mean
+        else:
+            return tree
+    else:
+        return tree
