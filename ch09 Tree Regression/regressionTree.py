@@ -1,6 +1,6 @@
 # =============================================================================
 # Author: Junbo Xin
-# Date: 2015/02/07-09
+# Date: 2015/02/07-10
 # Description:  Regression Tree
 # =============================================================================
 
@@ -8,6 +8,7 @@ from numpy import *
 
 
 def load_data_set(file_name):
+    num_feature = len(open(file_name).readline().split('\t'))-1
     data_mat = []
     fr = open(file_name).readlines()
     for line in fr:
@@ -37,7 +38,7 @@ def reg_error(data_set):
 def choose_best_split(data_set, leaf_type=reg_leaf, err_type=reg_error, ops=(1, 4)):
     max_err = ops[0]
     min_num = ops[1]
-    # Stop condition 1: if there's 1 feature, return
+    # Stop condition 1: if there's 1 label, return
     if len(set(data_set[:, -1].T.tolist()[0])) == 1:
         return None, leaf_type(data_set)
 
@@ -81,7 +82,7 @@ def create_tree(data_set, leaf_type=reg_leaf, err_type=reg_error, ops=(1, 4)):
     if feat is None:
         return val
     ret_tree = {}
-    ret_tree['split_index'] = feat
+    ret_tree['split_index'] = feat   # which index to choose
     ret_tree['split_value'] = val
 
     # step 2: split the data into two parts
@@ -92,4 +93,24 @@ def create_tree(data_set, leaf_type=reg_leaf, err_type=reg_error, ops=(1, 4)):
     ret_tree['right'] = create_tree(right_set, leaf_type, err_type, ops)
 
     return ret_tree
+
+
+def plot_data_set(file_name):
+    import matplotlib.pyplot as plt
+    data_arr = load_data_set(file_name)
+    n = shape(data_arr)[1]   # feature number of the data set
+    x_arr = []
+    y_arr = []
+    for line in data_arr:
+        line_arr = []
+        for i in range(n-1):
+            line_arr.append(line[i])
+        x_arr.append(line_arr)
+        y_arr.append(line[n-1])
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.scatter(array(x_arr)[:, 1], array(mat(y_arr).T)[:, 0], c='blue')
+    plt.show()
+
 
