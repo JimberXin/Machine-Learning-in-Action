@@ -127,6 +127,7 @@ def get_mean(tree):
     return (tree['left'] + tree['right']) / 2.0
 
 
+# prune the tree if needed
 def prune(tree, test_data):
     # step 1: if test data is empty, return
     if shape(test_data) == 0:
@@ -154,3 +155,28 @@ def prune(tree, test_data):
             return tree
     else:
         return tree
+
+
+def linear_solve(data_set):
+    m, n = shape(data_set)
+    x_mat = mat(ones((m, n)))
+    y_mat = mat(ones((m, 1)))
+    x_mat[:, 1:n] = data_set[:, 0:n-1]
+    y_mat = data_set[:, -1]
+    x = x_mat.T * x_mat
+    if linalg.det(x) == 0.0:
+        raise NameError('This matrix is singular, cannot reverse, \n\
+        try increasing the second value of ops')
+    ws = x.I * (x_mat.T * y_mat)
+    return ws, x_mat, y_mat
+
+
+def model_leaf(data_set):
+    ws, x, y = linear_solve(data_set)
+    return ws
+
+
+def model_err(data_set):
+    ws, x, y = linear_solve(data_set)
+    y_hat = x * ws
+    return sum(power(y - y_hat, 2))
