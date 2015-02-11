@@ -1,6 +1,6 @@
 # =============================================================================
 # Author: Junbo Xin
-# Date: 2015/02/07-09
+# Date: 2015/02/07-10
 # Description:  Regression Tree
 # =============================================================================
 
@@ -17,15 +17,20 @@ def test_basic():
 
 
 def test_create_tree():
-    my_dat = regressionTree.load_data_set('ex00.txt')
-    my_mat = mat(my_dat)
-    tree = regressionTree.create_tree(my_mat)
+    data_set = regressionTree.load_data_set('ex0.txt')
+    data_mat = mat(data_set)
+    tree = regressionTree.create_tree(data_mat)
     print tree
+
+
+def test_plot():
+    regressionTree.plot_data_set('ex0.txt')
 
 
 def main():
     # test_basic()
-    test_create_tree()
+    # test_create_tree()
+    test_plot()
 
 
 if __name__ == '__main__':
