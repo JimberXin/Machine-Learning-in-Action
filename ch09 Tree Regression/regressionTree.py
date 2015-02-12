@@ -1,8 +1,8 @@
-# =============================================================================
+# ===============================================================================================
 # Author: Junbo Xin
-# Date: 2015/02/07-10
+# Date: 2015/02/07-12
 # Description:  Regression Tree
-# =============================================================================
+# ===============================================================================================
 
 from numpy import *
 from Tkinter import *
@@ -188,11 +188,12 @@ def model_err(data_set):
 
 
 # ======================= Compare tree regression and standard regression ========================
-# transfer model to float
+# deal with the leaf node
 def reg_tree_eval(model, data_input):
     return float(model)
 
 
+# deal with the tree node (non-leaf node)
 def model_tree_eval(model, data_input):
     n = shape(data_input)[1]
     x = mat(ones((1, n+1)))
@@ -228,17 +229,21 @@ def create_forecast_tree(tree, test_set, model_eval=reg_tree_eval):
 
 
 def compare_regression():
+    # preprocess the data set: training set and test set
     train_mat = mat(load_data_set('bikeSpeedVsIq_train.txt'))
     test_mat = mat(load_data_set('bikeSpeedVsIq_test.txt'))
 
+    # regression tree regression
     reg_tree = create_tree(train_mat, ops=(1, 20))
     y_hat1 = create_forecast_tree(reg_tree, test_mat[:, 0])
     r1 = corrcoef(y_hat1, test_mat[:, 1], rowvar=0)[0, 1]
 
+    # model tree regression
     model_tree = create_tree(train_mat, model_leaf, model_err, ops=(1, 20))
     y_hat2 = create_forecast_tree(model_tree, test_mat[:, 0], model_tree_eval)
     r2 = corrcoef(y_hat2, test_mat[:, 1], rowvar=0)[0, 1]
 
+    # normal regression
     ws, x, y = linear_solve(train_mat)
     m = shape(train_mat)[0]
     y_hat3 = mat(zeros((m, 1)))
@@ -246,6 +251,7 @@ def compare_regression():
         y_hat3[i] = test_mat[i, 0] * ws[1, 0] + ws[0, 0]
     r3 = corrcoef(y_hat3, test_mat[:, 1], rowvar=0)[0, 1]
 
+    # print the corr coefficients of the 3 regression
     print 'tree regression corr is:  ', r1
     print 'model regression corr is: ', r2
     print 'normal regression corr is:', r3

@@ -1,7 +1,7 @@
 # =============================================================================
 # Author: Junbo Xin
-# Date: 2015/02/07-10
-# Description:  Regression Tree
+# Date: 2015/02/07-12
+# Description:  Test file for Regression Tree
 # =============================================================================
 
 from numpy import *
@@ -49,7 +49,6 @@ def test_model_tree():
     regressionTree.plot_data_set('exp2.txt')
 
 
-
 def main():
     # test_basic()
     # test_create_tree()
@@ -57,6 +56,7 @@ def main():
     # test_prune()
     # test_model_tree()
     regressionTree.compare_regression()
+    # test_tkinter()
 
 
 if __name__ == '__main__':
