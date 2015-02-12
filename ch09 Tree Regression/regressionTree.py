@@ -5,6 +5,7 @@
 # =============================================================================
 
 from numpy import *
+from Tkinter import *
 
 
 def load_data_set(file_name):
@@ -114,6 +115,7 @@ def plot_data_set(file_name):
     plt.show()
 
 
+# ========================================== Tree Prune =========================================
 # judge whether obj is a tree or not
 def is_tree(obj):
     return type(obj).__name__ == 'dict'
@@ -157,6 +159,7 @@ def prune(tree, test_data):
         return tree
 
 
+# ========================================= Model Tree ===========================================
 def linear_solve(data_set):
     m, n = shape(data_set)
     x_mat = mat(ones((m, n)))
@@ -171,12 +174,78 @@ def linear_solve(data_set):
     return ws, x_mat, y_mat
 
 
+# return the model tree's leaf, the weights: ws
 def model_leaf(data_set):
     ws, x, y = linear_solve(data_set)
     return ws
 
 
+# return the least square error
 def model_err(data_set):
     ws, x, y = linear_solve(data_set)
     y_hat = x * ws
     return sum(power(y - y_hat, 2))
+
+
+# ======================= Compare tree regression and standard regression ========================
+# transfer model to float
+def reg_tree_eval(model, data_input):
+    return float(model)
+
+
+def model_tree_eval(model, data_input):
+    n = shape(data_input)[1]
+    x = mat(ones((1, n+1)))
+    x[:, 1:n+1] = data_input
+    return float(x * model)
+
+
+def tree_forecast(tree, data_input, model_eval=reg_tree_eval):
+    # if tree is empty
+    if not is_tree(tree):
+        return model_eval(tree, data_input)
+
+    # tree is not empty, go to left or right
+    if data_input[tree['split_index']] > tree['split_value']:
+        if is_tree(tree['left']):
+            return tree_forecast(tree['left'], data_input, model_eval)
+        else:
+            return model_eval(tree['left'], data_input)
+
+    else:
+        if is_tree(tree['right']):
+            return tree_forecast(tree['right'], data_input, model_eval)
+        else:
+            return model_eval(tree['right'], data_input)
+
+
+def create_forecast_tree(tree, test_set, model_eval=reg_tree_eval):
+    m = len(test_set)
+    y_hat = mat(zeros((m, 1)))
+    for i in range(m):
+        y_hat[i, 0] = tree_forecast(tree, mat(test_set[i]), model_eval)
+    return y_hat
+
+
+def compare_regression():
+    train_mat = mat(load_data_set('bikeSpeedVsIq_train.txt'))
+    test_mat = mat(load_data_set('bikeSpeedVsIq_test.txt'))
+
+    reg_tree = create_tree(train_mat, ops=(1, 20))
+    y_hat1 = create_forecast_tree(reg_tree, test_mat[:, 0])
+    r1 = corrcoef(y_hat1, test_mat[:, 1], rowvar=0)[0, 1]
+
+    model_tree = create_tree(train_mat, model_leaf, model_err, ops=(1, 20))
+    y_hat2 = create_forecast_tree(model_tree, test_mat[:, 0], model_tree_eval)
+    r2 = corrcoef(y_hat2, test_mat[:, 1], rowvar=0)[0, 1]
+
+    ws, x, y = linear_solve(train_mat)
+    m = shape(train_mat)[0]
+    y_hat3 = mat(zeros((m, 1)))
+    for i in range(m):
+        y_hat3[i] = test_mat[i, 0] * ws[1, 0] + ws[0, 0]
+    r3 = corrcoef(y_hat3, test_mat[:, 1], rowvar=0)[0, 1]
+
+    print 'tree regression corr is:  ', r1
+    print 'model regression corr is: ', r2
+    print 'normal regression corr is:', r3
