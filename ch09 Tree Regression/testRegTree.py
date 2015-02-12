@@ -55,7 +55,8 @@ def main():
     # test_create_tree()
     # test_plot()
     # test_prune()
-    test_model_tree()
+    # test_model_tree()
+    regressionTree.compare_regression()
 
 
 if __name__ == '__main__':
