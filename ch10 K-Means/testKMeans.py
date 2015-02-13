@@ -4,6 +4,7 @@
 # Description:  Test file for K Means
 # ===============================================================================================
 import kMeans
+import mapCluster
 from numpy import *
 
 
@@ -27,10 +28,16 @@ def test_binary_k_means():
     center, cluster = kMeans.binary_k_means(data_mat, k)
     kMeans.plot_k_means(data_mat, cluster, center, k)
 
+
+def test_map_cluster():
+    mapCluster.cluster_clubs(5)
+
+
 def main():
     # test_load()
-    test_k_means()
+    # test_k_means()
     # test_binary_k_means()
+    test_map_cluster()
 
 
 if __name__ == '__main__':
