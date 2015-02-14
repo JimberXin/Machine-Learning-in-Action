@@ -10,6 +10,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 
+# calculate the distance of two points on the earth
 def calc_earth_dist(vec1, vec2):
     a = sin(vec1[0, 1]*pi/180) * sin(vec2[0, 1]*pi/180)
     b = cos(vec1[0, 1]*pi/180) * cos(vec2[0, 1]*pi/180) *\
@@ -22,6 +23,7 @@ def cluster_clubs(num_cluster=5):
     data_list = []
     for line in open('places.txt').readlines():
         line_arr = line.split('\t')
+        # the 4th and 5th col of the file is the longitude and latitude
         data_list.append([float(line_arr[4]), float(line_arr[3])])
     data_mat = mat(data_list)
     center, cluster = kMeans.binary_k_means(data_mat, num_cluster, dist_fun=calc_earth_dist)
@@ -37,6 +39,7 @@ def cluster_clubs(num_cluster=5):
     ax0.imshow(img)
     ax1 = fig.add_axes(rect, label='ax1', frameon=False)
 
+    # for each cluster, plot the scatters
     for i in range(num_cluster):
         current_clu = data_mat[nonzero(cluster[:, 0].A == i)[0], :]
         marker_sty = markers[i % len(markers)]
