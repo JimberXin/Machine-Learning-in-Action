@@ -1,6 +1,6 @@
 # ====================================================================================
 # Author: Junbo Xin
-# Date: 2015/02/13-14
+# Date: 2015/02/13-16
 # Description:  Apriori Algorithm
 # ====================================================================================
 
@@ -92,29 +92,48 @@ def apriori(data_set, mini_support=0.5):
 # ============================== Part 2: Mining the Association Rules =========================
 # @candidate_list: l1, l2, l3,...
 # @support_data: dictionary, key is frequent set, value is support value
-def generate_rules(candidate_list, support_data, min_confi=0.7):
+def generate_rules(candidate_list, support_data, min_conf=0.7):
     rule_list = []
-    for i in range(1, len(candidate_list)):
+    for i in range(1, len(candidate_list)):  # start from 1
 
         for freq_set in candidate_list[i]:
-            # if {0,1,2}, h=[{0},{1},{2}]
             h = [frozenset([item]) for item in freq_set]
+            print h
+            print freq_set
 
-            # contains more than 1 elements
             if i > 1:
-                pass
+                # contains more than 2 elements: h=[[2],[3],[5]], freq_set=[2,3,5]
+                merge(freq_set, h, support_data, rule_list, min_conf)
             else:
-                pass
+                # contains only 2 elements:
+                # i.e, h=[[1],[3]], freq_set=[1,3]
+                #      h=[[2],[5]], freq_set=[2,5]
+                #      h=[[2],[3]], freq_set=[2,3]
+                #      h=[[3],[5]], freq_set=[3,5]
+                calc_conf(freq_set, h, support_data, rule_list, min_conf)
     return rule_list
 
 
-def calc_conf(freq_set, h, support_data, rule_list, min_confi=0.7):
+# calculate left--->right rules
+def calc_conf(freq_set, h, support_data, rule_list, min_conf=0.7):
     rules = []
-    for conseq in h:
-        conf = support_data[freq_set] / support_data[freq_set-conseq]
-        if conf >= min_confi:
-            print freq_set-conseq, '-->', conseq, 'conf:', conf
-            rule_list.append(freq_set-conseq, conseq, conf)
-            rules.append(conseq)
+    for right in h:
+        left = freq_set - right
+        conf = support_data[freq_set] / support_data[left]
+        if conf >= min_conf:
+            print left, '-->', right, 'conf:', conf  # left-->right
+            # add the rules in the current list: rule_list
+            rule_list.append((left, right, conf))
+            rules.append(right)  # also save the right side in the rules[]
     return rules
+
+
+# if freq_set contains too much elements, try to merge
+def merge(freq_set, h, support_data, rule_list, min_conf=0.7):
+    m = len(h[0])
+    if len(freq_set) > (m+1):
+        temp = generate_ck(h, m+1)
+        temp = calc_conf(freq_set, temp, support_data, rule_list, min_conf)
+        if len(temp) > 1:
+            merge(freq_set, temp, support_data, rule_list, min_conf)
 
