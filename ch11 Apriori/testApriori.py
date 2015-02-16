@@ -1,6 +1,6 @@
 # ====================================================================================
 # Author: Junbo Xin
-# Date: 2015/02/13
+# Date: 2015/02/13-16
 # Description:  test file for Apriori Algorithm
 # ====================================================================================
 
@@ -24,9 +24,19 @@ def test_apriori():
     print support_data
 
 
+def test_generate_rules():
+    data_set = Apriori.load_data_set()
+    l, support_data = Apriori.apriori(data_set, 0.5)
+    print '='*100
+    print l
+    rules = Apriori.generate_rules(l, support_data, 0.5)
+    print rules
+
+
 def main():
     # test_create()
-    test_apriori()
+    # test_apriori()
+    test_generate_rules()
 
 
 if __name__ == '__main__':
