@@ -43,6 +43,7 @@ def create_init_set(data_set, mini_up=1):
     return ret_dict
 
 
+# giving the data_set(already initialize as a dict), create the FP tree
 def create_tree(data_set, mini_up=1):
     head_table = {}
     print data_set
@@ -55,8 +56,10 @@ def create_tree(data_set, mini_up=1):
         if head_table[k] < mini_up:
             del(head_table[k])
 
+    # a set with unique items only
     freq_item_set = set(head_table.keys())
 
+    # if the set has no elements, just return
     if len(freq_item_set) == 0:
         return None, None
 
@@ -67,6 +70,7 @@ def create_tree(data_set, mini_up=1):
 
     print head_table
 
+    # go through the set 2rd time
     for tran_set, count in data_set.items():
         local = {}
         print tran_set, '*'*2, count
@@ -97,6 +101,7 @@ def update_tree(items, tree, head_table, count):
         update_tree(items[1::], tree.children[items[0]], head_table, count)
 
 
+# add target_node at the end of node_to_test
 def update_header(node_to_test, target_node):
     while node_to_test.node_link is not None:
         node_to_test = node_to_test.node_link
