@@ -45,9 +45,11 @@ def create_init_set(data_set, mini_up=1):
 
 def create_tree(data_set, mini_up=1):
     head_table = {}
+    print data_set
     for trans in data_set:
         for item in trans:
             head_table[item] = head_table.get(item, 0) + data_set[trans]
+            print '='*10, item, head_table[item]
 
     for k in head_table.keys():
         if head_table[k] < mini_up:
@@ -60,15 +62,19 @@ def create_tree(data_set, mini_up=1):
 
     for k in head_table:
         head_table[k] = [head_table[k], None]
+
     ret_tree = TreeNode('Null Set', 1, None)
 
     print head_table
 
     for tran_set, count in data_set.items():
         local = {}
+        print tran_set, '*'*2, count
         for item in tran_set:
             if item in freq_item_set:
-                local[item] = head_table[item][0]
+                local[item] = head_table[item][0]  # 0 is the counts, 1 is
+
+        print local
 
         if len(local) > 0:
             order_items = [v[0] for v in sorted(local.items(), key=lambda p:p[1], reverse=True)]
