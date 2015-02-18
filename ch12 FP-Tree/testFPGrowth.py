@@ -26,6 +26,7 @@ def test_create_tree():
     data_set = fpGrowth.load_simple_data()
     init_set = fpGrowth.create_init_set(data_set)
     tree, head_table = fpGrowth.create_tree(init_set, 3)
+    print head_table
 
 
 def main():
