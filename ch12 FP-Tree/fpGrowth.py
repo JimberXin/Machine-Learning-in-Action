@@ -43,12 +43,14 @@ def create_init_set(data_set, mini_up=1):
     return ret_dict
 
 
+# ========================================= create FP tree ==================================
 # giving the data_set(already initialize as a dict), create the FP tree
 def create_tree(data_set, mini_up=1):
     head_table = {}
     print data_set
     for trans in data_set:
         for item in trans:
+            print 'what the fck', data_set[trans]
             head_table[item] = head_table.get(item, 0) + data_set[trans]
             print '='*10, item, head_table[item]
 
@@ -86,6 +88,7 @@ def create_tree(data_set, mini_up=1):
     return ret_tree, head_table
 
 
+#
 def update_tree(items, tree, head_table, count):
     if items[0] in tree.children:
         tree.children[items[0]].add(count)
@@ -106,3 +109,10 @@ def update_header(node_to_test, target_node):
     while node_to_test.node_link is not None:
         node_to_test = node_to_test.node_link
     node_to_test.node_link = target_node
+
+
+# ====================================== Mining frequent set ================================
+def ascend_tree(leaf_node, pre_path):
+    if leaf_node.parent is not None:
+        pre_path.append(leaf_node.name)
+        ascend_tree(leaf_node.parent, leaf_node)
