@@ -115,4 +115,5 @@ def update_header(node_to_test, target_node):
 def ascend_tree(leaf_node, pre_path):
     if leaf_node.parent is not None:
         pre_path.append(leaf_node.name)
-        ascend_tree(leaf_node.parent, leaf_node)
+        # ascend_tree(leaf_node.parent, leaf_node)
+
