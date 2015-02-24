@@ -1,6 +1,6 @@
 # ====================================================================================
 # Author: Junbo Xin
-# Date: 2015/02/17-23
+# Date: 2015/02/17-24
 # Description:  Frequent Pattern Growth
 # ====================================================================================
 
@@ -118,6 +118,7 @@ def ascend_tree(leaf_node, pre_path):
         # ascend_tree(leaf_node.parent, leaf_node)
 
 
+# find the previous path giving the tree node
 def find_prefix_path(base_path, tree_node):
     cond_pats = {}
     while tree_node is not None:
