@@ -29,6 +29,12 @@ def test_create_tree():
     print head_table
 
 
+def test_find_path():
+    data_set = fpGrowth.load_simple_data()
+    init_set = fpGrowth.create_init_set(data_set)
+    tree, head_table = fpGrowth.create_tree(init_set, 3)
+    print fpGrowth.find_prefix_path('x', head_table['x'][1])
+
 def main():
     # test_simple()
     # test_tree_node()
