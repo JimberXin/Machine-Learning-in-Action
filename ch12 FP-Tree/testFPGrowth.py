@@ -39,8 +39,8 @@ def test_find_path():
 
 def main():
     # test_simple()
-    # test_tree_node()
-    # test_create_tree()
+    test_tree_node()
+    test_create_tree()
     test_find_path()
 
 
