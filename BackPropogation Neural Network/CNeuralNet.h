@@ -2,18 +2,24 @@
 #define _CNEURALNET_H
 #include<math.h>
 #include<vector>
+
 using namespace std;
 
-typedef double INTPUT_TYPE;
+typedef double INPUT_TYPE;
 typedef double WEIGHT_TYPE;
 typedef double OUTPUT_TYPE;
+typedef vector<double> vecDouble;
+
+inline double RandFloat(){ return (rand())/(RAND_MAX+1.0); }
+
+inline double RandomClamped(){ return (RandFloat() - RandFloat()) ; }
 
 // ******************************a single neuron cell***************************
 struct SNeuron{
 	 int m_NumInputs;   //how much input for the neuron cell
 	 vector<WEIGHT_TYPE>  m_vecWeights;   // each weight of  the input
+	 OUTPUT_TYPE  output;
 	 SNeuron(int NumInputs);   //constructor
-	 ~SNeuron();
 };
 
 SNeuron::SNeuron(int NumInputs):m_NumInputs(NumInputs+1){
@@ -23,16 +29,12 @@ SNeuron::SNeuron(int NumInputs):m_NumInputs(NumInputs+1){
 	}
 }
 
-SNeuron::~SNeuron(){
-	;
-}
 
 //*********************************** a single neuron layer *****************************
 struct SNeuronLayer{
 	int m_NumNeurons;  //how much neurons of this layer
 	vector<SNeuron> m_vecNeurons;   // the current layer
 	SNeuronLayer(int NumNeurons, int  NumInputsPerNeuron);
-	~SNeuronLayer();
 };
 
 SNeuronLayer::SNeuronLayer(int NumNeurons, int NumInputsPerNeuron):m_NumNeurons(NumNeurons){
@@ -44,7 +46,7 @@ private:
 	int  m_NumOutputs;
 	int  m_NumHiddenLayers;
 	int  m_NeuronsPerHiddenLayer;
-	int m_bias = 1;
+	const int m_bias = 1;
 	vector<SNeuronLayer> m_vecLayers;
 
 public:
@@ -58,6 +60,7 @@ public:
 	vector<WEIGHT_TYPE>  CalcOutput(vector<WEIGHT_TYPE> &inputs);
 	// sigmoid activaction function
 	inline double Sigmoid(double activaction, double response);
+	bool Training(vector<vecDouble> &RealInput, vector<vecDouble> &RealOutput, double LearningRate);
 };
 
 
