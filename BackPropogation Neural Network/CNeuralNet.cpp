@@ -102,7 +102,7 @@ bool CNeuralNet::Training(vector<vecDouble> &RealInput,  vector<vecDouble> &Real
 				for(int k=0; k < m_vecLayers[m_NumHiddenLayers+1].m_vecNeurons[j].m_NumInputs-1; ++k){
 					weightAdd = error * m_vecLayers[m_NumHiddenLayers].m_vecNeurons[j].output;
 					m_vecLayers[m_NumHiddenLayers+1].m_vecNeurons[j].m_vecWeights[k] += weightAdd;
-					                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+					                                                                                                                                                                                                            
 				}
 
 
