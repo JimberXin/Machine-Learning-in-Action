@@ -60,6 +60,7 @@ public:
 	vector<WEIGHT_TYPE>  CalcOutput(vector<WEIGHT_TYPE> &inputs);
 	// sigmoid activaction function
 	inline double Sigmoid(double activaction, double response);
+	// training process using BP algorithm
 	bool Training(vector<vecDouble> &RealInput, vector<vecDouble> &RealOutput, double LearningRate);
 };
 
