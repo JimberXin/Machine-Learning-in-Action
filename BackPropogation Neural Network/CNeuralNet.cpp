@@ -118,7 +118,7 @@ bool CNeuralNet::Training(vector<vecDouble> &RealInput,  vector<vecDouble> &Real
 				 } // for output layer
 
 				 // update hidden layers' weights
-					/* for(int j = m; j <  m_vecLayers[j].
+					//	for(int j = m_NumHiddenLayers-1; j <  m_vecLayers[j].
 
 		   }
 	   }
